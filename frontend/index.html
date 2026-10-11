@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eutopia — A calm gallery for the photos you never want to delete</title>
+  <meta name="description" content="Eutopia groups your photos into memory groups by context and shows each in a template that matches the memory. Powered by Gemma 4.">
+
+  <!-- Stylesheets (order matters: tokens → base → templates → app) -->
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/templates.css">
+  <link rel="stylesheet" href="css/app.css?v=demo-ui-2">
+</head>
+<body>
+
+  <!-- Petal canvas layer (fixed, behind content, pointer-events: none) -->
+  <canvas id="petal-canvas" aria-hidden="true"></canvas>
+
+  <!-- ── Top Bar ── -->
+  <header class="top-bar" id="top-bar">
+    <a href="#" class="top-bar__brand">Eutopia</a>
+
+    <nav class="top-bar__nav" aria-label="Main navigation">
+      <a href="#features" class="top-bar__nav-link">How it works</a>
+      <a href="#gallery-section" class="top-bar__nav-link">Gallery</a>
+    </nav>
+
+    <div class="top-bar__actions">
+      <a href="#gallery-section" class="btn-ghost">Templates</a>
+      <button class="btn-primary" type="button" id="upload-btn">
+        <!-- Inline SVG: upload arrow -->
+        <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <path d="M9 14V4M9 4L5 8M9 4L13 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Upload photos
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Hero Section ── -->
+  <section class="hero" aria-label="Welcome">
+    <div class="hero__content">
+      <h1 class="hero__title">Your photos,<br>grouped by memory</h1>
+      <p class="hero__subtitle">Upload a photo and let AI sort it into memories. Pick a template. That's it.</p>
+      <form class="gallery-search gallery-search--hero" id="caption-search-form" role="search">
+        <label class="gallery-search__label" for="caption-search">Looking for a photo? Describe what’s in its caption.</label>
+        <div class="gallery-search__controls">
+          <input
+            class="gallery-search__input"
+            id="caption-search"
+            type="search"
+            placeholder="Try ‘beach’, ‘birthday’, or a moment you remember…"
+            autocomplete="off"
+            aria-controls="photo-grid"
+          >
+          <button class="gallery-search__button" type="submit">Find photo</button>
+        </div>
+        <p class="gallery-search__status" id="caption-search-status" role="status" aria-live="polite"></p>
+      </form>
+      <button class="btn-primary hero__cta" type="button" onclick="document.getElementById('upload-btn').click()">
+        <svg width="16" height="16" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+          <path d="M9 14V4M9 4L5 8M9 4L13 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Upload photos
+      </button>
+    </div>
+  </section>
+
+  <!-- ── Main Content ── -->
+  <main class="main-content">
+
+    <!-- How it works -->
+    <section class="content-section reveal" id="features" aria-label="How it works">
+      <h2 class="section-title">How it works</h2>
+      <p class="section-subtitle">Three steps. No setup. No account.</p>
+
+      <div class="features-grid">
+        <article class="feature-card">
+          <div class="feature-card__icon" aria-hidden="true">📷</div>
+          <h3 class="feature-card__title">Upload</h3>
+          <p class="feature-card__desc">Drop a photo. Eutopia resizes it, converts to WebP, and stores a compressed copy in your browser.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-card__icon" aria-hidden="true">🧠</div>
+          <h3 class="feature-card__title">Analyze</h3>
+          <p class="feature-card__desc">Gemma 4 reads the photo and returns a caption, emotion, and event type. No data leaves your session.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-card__icon" aria-hidden="true">🎨</div>
+          <h3 class="feature-card__title">Template</h3>
+          <p class="feature-card__desc">Choose Wallpaper, Nature, or College Memories to browse a focused set of example photos.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Gallery section -->
+    <section class="content-section reveal" id="gallery-section" aria-label="Photos">
+      <div class="gallery-heading">
+        <div class="gallery-heading__copy">
+          <p class="gallery-heading__eyebrow">A calm gallery for the photos you never want to delete</p>
+          <h2 class="section-title">Photos</h2>
+        </div>
+
+        <!-- Template Picker -->
+        <nav class="template-picker" aria-label="Template style">
+          <span class="template-picker__label">Template:</span>
+          <button
+            class="template-picker__btn template-picker__btn--calm"
+            data-template="tpl-calm"
+            aria-pressed="true"
+            aria-label="Wallpaper template"
+            type="button"
+            id="tpl-btn-calm"
+          >Wallpaper</button>
+          <button
+            class="template-picker__btn template-picker__btn--nostalgia"
+            data-template="tpl-nostalgia"
+            aria-pressed="false"
+            aria-label="Nature template"
+            type="button"
+            id="tpl-btn-nostalgia"
+          >Nature</button>
+          <button
+            class="template-picker__btn template-picker__btn--celebration"
+            data-template="tpl-celebration"
+            aria-pressed="false"
+            aria-label="College memories template"
+            type="button"
+            id="tpl-btn-celebration"
+          >College memories</button>
+        </nav>
+      </div>
+
+      <div id="gallery-root" class="gallery gallery--empty">
+        <p class="gallery-search__empty" id="caption-search-empty" hidden>No photos match that caption. Try another word.</p>
+        <div class="gallery__grid" id="photo-grid">
+          <!-- Hardcoded demo cards and uploaded cards are rendered by analyze.js. -->
+        </div>
+
+        <!-- Empty state stays inside the selected paper palette. -->
+        <section class="empty-state" id="empty-state" aria-label="No photos yet">
+          <div class="empty-state__icon">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+              <rect x="6" y="14" width="36" height="26" rx="4" stroke="currentColor" stroke-width="2" fill="none"/>
+              <circle cx="24" cy="27" r="7" stroke="currentColor" stroke-width="2" fill="none"/>
+              <path d="M16 14 L18 8 L30 8 L32 14" stroke="currentColor" stroke-width="2" fill="none" stroke-linejoin="round"/>
+              <circle cx="24" cy="27" r="3" fill="currentColor" opacity="0.3"/>
+            </svg>
+          </div>
+          <p class="empty-state__text">Upload a photo to start your first memory.</p>
+          <button class="empty-state__btn" type="button" onclick="document.getElementById('upload-btn').click()">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M9 14V4M9 4L5 8M9 4L13 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Upload photos
+          </button>
+        </section>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer class="site-footer">
+    <p class="site-footer__privacy">Photos are sent to an AI provider for analysis. Eutopia keeps compressed copies in your browser, not originals.</p>
+  </footer>
+
+  <!-- Scripts (order: templates before petals, both after DOM) -->
+  <script src="js/templates.js?v=demo-ui-2"></script>
+  <script src="js/petals.js"></script>
+  <script src="js/analyze.js?v=demo-ui-2"></script>
+
+  <!-- Top bar scroll effect + reveal animation -->
+  <script>
+    /* why: IntersectionObserver for section reveal animation (DESIGN.md §8) */
+    (function () {
+      'use strict';
+
+      // ── Top bar frosted glass on scroll ──
+      var topBar = document.getElementById('top-bar');
+      if (topBar) {
+        window.addEventListener('scroll', function () {
+          if (window.scrollY > 60) {
+            topBar.classList.add('top-bar--scrolled');
+          } else {
+            topBar.classList.remove('top-bar--scrolled');
+          }
+        }, { passive: true });
+      }
+
+      // ── Reveal animation with IntersectionObserver ──
+      var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (!prefersReducedMotion) {
+        var revealElements = document.querySelectorAll('.reveal');
+        if (revealElements.length > 0 && 'IntersectionObserver' in window) {
+          var observer = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                observer.unobserve(entry.target);
+              }
+            });
+          }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+          revealElements.forEach(function (el) {
+            observer.observe(el);
+          });
+        }
+      } else {
+        // why: if reduced motion, all sections should be visible immediately
+        document.querySelectorAll('.reveal').forEach(function (el) {
+          el.classList.add('revealed');
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

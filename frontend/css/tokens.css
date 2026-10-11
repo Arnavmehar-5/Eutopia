@@ -1,0 +1,70 @@
+/* tokens.css — single source of truth for Eutopia dark design system (DESIGN.md §1–3) */
+
+:root {
+  /* ── Colours (§1, dark monochrome system) ── */
+  --canvas:          #171721; /* page background */
+  --card:            #1e1e2a; /* card surfaces */
+  --btn-fill:        #272735; /* button/input fills */
+  --text:            #ededf3; /* primary text */
+  --text-secondary:  #c3c3cc; /* secondary/caption text */
+  --border-hairline: #e2e3ed; /* hairline borders */
+  --border-divider:  #70707d; /* section dividers */
+  --primary:         #5266eb; /* main CTA only; never decoration */
+  --error:           #A62B3A; /* error text/border */
+
+  /* why: keep legacy variable names as aliases so templates.css can still use --bg, --ink, --line, --accent */
+  --bg:              var(--canvas);
+  --surface:         var(--card);
+  --ink:             var(--text);
+  --ink-soft:        var(--text-secondary);
+  --line:            var(--border-divider);
+  --accent:          var(--primary);
+  --accent-strong:   var(--primary);
+
+  /* ── Type (§2) — Inter variable font ── */
+  --font-display: 'Inter', sans-serif;
+  --font-body:    'Inter', sans-serif;
+  --fw-regular:   400;
+  --fw-medium:    480;  /* headings and emphasis; never 700+ for headings */
+  --fw-bold:      480;  /* why: spec says never bold for headings, so even --fw-bold maps to 480 */
+
+  /* type scale (px → rem) */
+  --fs-caption: 0.75rem;   /* 12 */
+  --fs-xs:      0.875rem;  /* 14 */
+  --fs-sm:      1rem;      /* 16, body */
+  --fs-card:    1.75rem;   /* 28, card titles */
+  --fs-section: 2rem;      /* 32, section titles */
+  --fs-display: 2.625rem;  /* 42, section display */
+  --fs-hero:    4.0625rem; /* 65, hero headline */
+
+  /* legacy aliases */
+  --fs-md:   1.25rem;
+  --fs-lg:   var(--fs-section);
+  --fs-xl:   var(--fs-display);
+  --fs-xxl:  var(--fs-hero);
+
+  --lh-body:    1.5;
+  --lh-display: 1.1;
+
+  /* ── Spacing (§3) ── */
+  --sp-1:  0.25rem;  /*  4 */
+  --sp-2:  0.5rem;   /*  8 */
+  --sp-3:  1rem;     /* 16 */
+  --sp-gap: 0.75rem; /* 12, element gap */
+  --sp-4:  1.5rem;   /* 24 */
+  --sp-5:  2rem;     /* 32, card padding */
+  --sp-6:  3rem;     /* 48 */
+  --sp-section: 4.5rem; /* 72, vertical space between sections */
+  --sp-7:  4rem;     /* 64 */
+  --sp-8:  6rem;     /* 96 */
+
+  /* ── Shape (§3) ── */
+  --max-w:         75rem;    /* 1200 */
+  --radius-pill:   2rem;     /* 32 px */
+  --radius-card:   0.75rem;  /* 12 px */
+  --radius-struct: 0.25rem;  /* 4 px for structural lines */
+  --shadow-card:   none;     /* no drop shadows */
+
+  /* ── Section padding ── */
+  --section-pad: var(--sp-section);
+}

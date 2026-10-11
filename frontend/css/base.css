@@ -1,0 +1,115 @@
+/* base.css — typography, resets, focus rings, reduced-motion (DESIGN.md §2, §7) */
+
+/* ── Google Fonts: Inter variable ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap');
+
+/* ── Minimal reset ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* why: smooth scrolling for in-page links, but respect reduced motion */
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-body);
+  color: var(--text);
+  background-color: var(--canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Display / heading typography ── */
+/* why: Inter at 480 weight for headings gives a clean, premium look without boldness */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-medium);
+  line-height: var(--lh-display);
+  color: var(--text);
+}
+
+h1 {
+  font-size: var(--fs-display);
+}
+
+h2 {
+  font-size: var(--fs-section);
+}
+
+h3 {
+  font-size: var(--fs-card);
+}
+
+p {
+  max-width: 65ch; /* why: comfortable reading measure */
+}
+
+a {
+  color: var(--primary);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: opacity 0.15s ease;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+/* ── Focus ring (§7): 2 px primary, visible on every control ── */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ── Image defaults ── */
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* ── Utility classes ── */
+.visually-hidden {
+  /* why: accessible label hidden from sight but read by screen readers */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ── Mobile adjustments ── */
+@media (max-width: 640px) {
+  :root {
+    --section-pad: var(--sp-6); /* 48 px on mobile */
+  }
+}

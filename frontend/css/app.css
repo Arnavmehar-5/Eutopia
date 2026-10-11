@@ -1,0 +1,617 @@
+/* app.css — app shell: top bar, hero, sections, reveal, footer, empty state, petals (DESIGN.md §3–8) */
+
+/* ═══════════════════════════════════════════
+   TOP BAR — transparent over hero, frosted glass on scroll
+   ═══════════════════════════════════════════ */
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-3) var(--sp-5);
+  /* why: transparent by default over the hero; JS adds .top-bar--scrolled */
+  background: transparent;
+  transition: background 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+/* why: frosted glass effect on scroll — #171721 at 80% + blur */
+.top-bar--scrolled {
+  background: rgba(23, 23, 33, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* why: respect user preference for reduced transparency */
+@media (prefers-reduced-transparency: reduce) {
+  .top-bar--scrolled {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(23, 23, 33, 0.95);
+  }
+}
+
+.top-bar__brand {
+  font-family: var(--font-display);
+  font-size: var(--fs-card);
+  font-weight: var(--fw-medium);
+  color: var(--text);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.top-bar__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-gap);
+}
+
+.top-bar__nav-link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-regular);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-pill);
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.top-bar__nav-link:hover {
+  color: var(--text);
+  opacity: 1;
+}
+
+.top-bar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-gap);
+}
+
+/* Ghost pill button (Templates link) */
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0.5rem 1.25rem;
+  border: 1px solid var(--border-divider);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-regular);
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-ghost:hover {
+  border-color: var(--text-secondary);
+  color: var(--text);
+  opacity: 1;
+}
+
+/* Primary pill button (Upload photos — the ONE cobalt CTA) */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--primary);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ═══════════════════════════════════════════
+   HERO — full-viewport, full-bleed, CSS gradient
+   ═══════════════════════════════════════════ */
+.hero {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  /* why: rich gradient background instead of an image — no licensing issues */
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(82, 102, 235, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(82, 102, 235, 0.08) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 80%, rgba(30, 30, 42, 0.9) 0%, transparent 60%),
+    var(--canvas);
+  overflow: hidden;
+  padding: var(--sp-8) var(--sp-5);
+}
+
+/* why: dark overlay to ensure text is always readable on top of gradient + petals */
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(23, 23, 33, 0.3);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.hero__content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+}
+
+.hero__title {
+  font-size: var(--fs-hero);
+  font-weight: var(--fw-medium);
+  color: var(--text);
+  line-height: var(--lh-display);
+  letter-spacing: -0.03em;
+  margin-bottom: var(--sp-4);
+}
+
+.hero__subtitle {
+  font-size: var(--fs-md);
+  color: var(--text-secondary);
+  font-weight: var(--fw-regular);
+  margin-bottom: var(--sp-5);
+  max-width: 540px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero__cta {
+  /* why: this is the one primary action, so it gets the cobalt fill */
+  padding: 0.75rem 2rem;
+  font-size: var(--fs-sm);
+}
+
+/* ═══════════════════════════════════════════
+   MAIN CONTENT
+   ═══════════════════════════════════════════ */
+.main-content {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: var(--section-pad) var(--sp-5);
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Section spacing ── */
+.content-section {
+  margin-bottom: var(--sp-section);
+}
+
+/* why: the active template colors a full gallery band so it reads as its own memory space. */
+#gallery-section {
+  position: relative;
+  isolation: isolate;
+  padding: clamp(2rem, 6vw, 4.5rem) clamp(1.5rem, 6vw, 5rem);
+  background: transparent;
+}
+
+/* why: extend the paper color to the viewport edges without 100vw causing a scrollbar. */
+#gallery-section::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: var(--bg);
+  box-shadow: 0 0 0 100vmax var(--bg);
+  clip-path: inset(0 -100vmax);
+}
+
+.gallery-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: var(--sp-5);
+  max-width: var(--max-w);
+  margin: 0 auto var(--sp-5);
+}
+
+.gallery-heading__eyebrow {
+  max-width: none;
+  color: var(--ink-soft);
+  font-size: var(--fs-xs);
+  margin-bottom: var(--sp-2);
+}
+
+.gallery-search {
+  max-width: var(--max-w);
+  margin: 0 auto var(--sp-5);
+}
+
+.gallery-search__label {
+  display: block;
+  color: var(--ink);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  margin-bottom: var(--sp-2);
+}
+
+.gallery-search__input {
+  width: min(100%, 34rem);
+  padding: 0.8rem 1rem;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  font: inherit;
+}
+
+.gallery-search--hero {
+  width: min(100%, 44rem);
+  margin: 0 auto var(--sp-4);
+  text-align: left;
+}
+
+.gallery-search--hero .gallery-search__label,
+.gallery-search--hero .gallery-search__status {
+  color: var(--text-secondary);
+}
+
+.gallery-search__controls {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.gallery-search--hero .gallery-search__input {
+  flex: 1;
+  width: auto;
+  color: var(--text);
+  background: var(--card);
+  border-color: var(--border-divider);
+}
+
+.gallery-search--hero .gallery-search__input:focus-visible {
+  outline-color: var(--primary);
+}
+
+.gallery-search__button {
+  padding: 0.75rem 1.25rem;
+  color: #fff;
+  background: var(--primary);
+  border: 0;
+  border-radius: var(--radius-card);
+  font: inherit;
+  cursor: pointer;
+}
+
+.gallery-search__button:hover {
+  opacity: 0.9;
+}
+
+.gallery-search__input:focus-visible {
+  outline: 2px solid var(--accent-strong);
+  outline-offset: 2px;
+}
+
+.gallery-search__status,
+.gallery-search__empty {
+  color: var(--ink-soft);
+  font-size: var(--fs-xs);
+  margin-top: var(--sp-2);
+}
+
+.gallery-search__empty {
+  text-align: center;
+  padding: var(--sp-4);
+}
+
+#gallery-section .section-title {
+  color: var(--ink);
+  margin-bottom: 0;
+}
+
+.section-title {
+  font-family: var(--font-display);
+  font-size: var(--fs-section);
+  font-weight: var(--fw-medium);
+  color: var(--text);
+  margin-bottom: var(--sp-4);
+}
+
+.section-subtitle {
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--sp-5);
+}
+
+/* ═══════════════════════════════════════════
+   FEATURE CARDS (how-it-works section)
+   ═══════════════════════════════════════════ */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-gap);
+}
+
+.feature-card {
+  background: var(--card);
+  border-radius: var(--radius-card);
+  padding: var(--sp-5);
+  /* why: no shadows per spec; separation comes from the card color step */
+}
+
+.feature-card__icon {
+  font-size: 2rem;
+  margin-bottom: var(--sp-3);
+  /* why: only decorative, not the primary action, so no cobalt — use a muted colour */
+  opacity: 0.7;
+}
+
+.feature-card__title {
+  font-size: var(--fs-card);
+  font-weight: var(--fw-medium);
+  color: var(--text);
+  margin-bottom: var(--sp-2);
+}
+
+.feature-card__desc {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  line-height: var(--lh-body);
+}
+
+@media (max-width: 1024px) {
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .gallery-search__controls {
+    flex-direction: column;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero__title {
+    font-size: var(--fs-display);
+  }
+}
+
+/* ═══════════════════════════════════════════
+   TEMPLATE PICKER
+   ═══════════════════════════════════════════ */
+.template-picker {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+}
+
+#gallery-section .template-picker {
+  flex-shrink: 0;
+  margin: 0;
+}
+
+#gallery-section .template-picker__label {
+  color: var(--ink-soft);
+}
+
+.template-picker__label {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+  font-weight: var(--fw-medium);
+  margin-right: var(--sp-1);
+}
+
+.template-picker__btn {
+  /* why: each swatch is a button so it's keyboard-operable */
+  min-height: 36px;
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--border-divider);
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+  background: none;
+  padding: 0 var(--sp-3);
+  color: #000000;
+  font: inherit;
+  font-size: var(--fs-caption);
+}
+
+#gallery-section .template-picker__btn[aria-pressed="true"] {
+  color: #000000;
+}
+
+.template-picker__btn:hover {
+  transform: scale(1.12);
+}
+
+.template-picker__btn[aria-pressed="true"] {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary);
+}
+
+#gallery-section .template-picker__btn[aria-pressed="true"] {
+  border-color: var(--accent-strong);
+  box-shadow: 0 0 0 2px var(--accent-strong);
+}
+
+/* Template names stay visible; each button still previews its gallery palette. */
+.template-picker__btn--calm {
+  background: #F7F2E9;
+}
+
+.template-picker__btn--nostalgia {
+  background: #EFE3CF;
+}
+
+.template-picker__btn--celebration {
+  background: #FFF4E0;
+}
+
+.template-picker__btn--calm::after,
+.template-picker__btn--nostalgia::after,
+.template-picker__btn--celebration::after { content: none; }
+
+/* ═══════════════════════════════════════════
+   EMPTY STATE
+   ═══════════════════════════════════════════ */
+.empty-state {
+  text-align: center;
+  padding: var(--sp-8) var(--sp-5);
+  color: var(--text-secondary);
+}
+
+#gallery-section .gallery--empty .empty-state {
+  display: grid;
+  justify-items: center;
+  gap: var(--sp-2);
+  color: var(--ink-soft);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-card);
+  padding: var(--sp-7) var(--sp-5);
+}
+
+#gallery-section .gallery:not(.gallery--empty) .empty-state {
+  display: none;
+}
+
+.empty-state__icon {
+  margin-bottom: var(--sp-3);
+  opacity: 0.4;
+}
+
+.empty-state__text {
+  font-size: var(--fs-md);
+  margin-bottom: var(--sp-4);
+  max-width: none;
+}
+
+#gallery-section .empty-state__text {
+  color: var(--ink-soft);
+  margin-bottom: var(--sp-2);
+}
+
+/* why: the empty-state upload button is also the primary CTA, so reuses .btn-primary */
+.empty-state__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0.625rem 1.5rem;
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.empty-state__btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.analyze-status {
+  font-family: var(--font-body);
+  color: var(--text-secondary);
+  margin-top: 8px;
+}
+
+/* ═══════════════════════════════════════════
+   PETAL CANVAS
+   ═══════════════════════════════════════════ */
+#petal-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Content must sit above petals */
+.top-bar,
+.hero,
+.main-content,
+.site-footer {
+  position: relative;
+  z-index: 1;
+}
+
+/* ═══════════════════════════════════════════
+   REVEAL ANIMATION — sections fade in & rise 16px
+   ═══════════════════════════════════════════ */
+/* why: start invisible; JS adds .revealed when the element enters the viewport */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* why: if reduced motion, skip the animation — show everything immediately */
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════ */
+.site-footer {
+  border-top: 1px solid var(--border-divider);
+  padding: var(--sp-5) var(--sp-5);
+  text-align: center;
+}
+
+.site-footer__privacy {
+  font-size: var(--fs-caption);
+  color: var(--text-secondary);
+  max-width: var(--max-w);
+  margin: 0 auto;
+}
+
+/* ═══════════════════════════════════════════
+   TOP BAR RESPONSIVE
+   ═══════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .gallery-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+
+  #gallery-section .template-picker {
+    flex-wrap: wrap;
+  }
+
+  .top-bar__nav {
+    display: none; /* hide center nav on mobile */
+  }
+}

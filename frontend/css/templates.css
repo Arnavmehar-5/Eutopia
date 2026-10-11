@@ -1,0 +1,234 @@
+/* templates.css — three template classes (DESIGN.md §4)
+   Each overrides ONLY the tokens marked "template override" and sets its layout.
+   Scoped to #gallery-root so the dark app shell is never affected. */
+
+/* ═══════════════════════════════════════════
+   Shared gallery layout foundation
+   ═══════════════════════════════════════════ */
+.gallery {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  background: transparent;
+}
+
+.gallery__grid {
+  gap: var(--sp-4);
+}
+
+/* Photo card shared styles */
+.photo-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  break-inside: avoid; /* for masonry column layout */
+}
+
+.photo-card__image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #C8C4BB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-size: var(--fs-xs);
+  font-family: var(--font-body);
+}
+
+.photo-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-card__body {
+  padding: var(--sp-3);
+}
+
+.photo-card__title {
+  color: var(--ink);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  margin-bottom: var(--sp-1);
+}
+
+.photo-card__caption {
+  font-size: var(--fs-xs);
+  color: var(--ink-soft);
+  margin-bottom: var(--sp-1);
+}
+
+.photo-card__emotion {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: var(--sp-1) var(--sp-2);
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+  color: var(--ink);
+  font-weight: var(--fw-medium);
+}
+
+.photo-card__status {
+  max-width: none;
+  color: var(--ink-soft);
+  font-size: var(--fs-caption);
+  margin-top: var(--sp-2);
+}
+
+.photo-card__status--error {
+  color: var(--error);
+}
+
+
+/* ═══════════════════════════════════════════
+   CALM (default) — masonry 3-col
+   Tokens: uses the washi palette inside gallery
+   ═══════════════════════════════════════════ */
+#gallery-section.tpl-calm {
+  --bg:     #F7F2E9;
+  --ink:    #1F1E24;
+  --ink-soft: #5C5A63;
+  --line:   #D9D2C3;
+  --accent: #F2A7BD;
+  --accent-strong: #B8466A;
+  --surface: #FFFDF8;
+  --shadow-card: 0 8px 30px rgba(31, 30, 36, 0.08);
+  background-color: var(--bg);
+  color: var(--ink);
+}
+
+/* why: CSS columns give a lightweight masonry effect without JS */
+.tpl-calm .gallery__grid {
+  column-count: 3;
+  column-gap: var(--sp-4);
+}
+
+.tpl-calm .photo-card {
+  margin-bottom: var(--sp-4);
+}
+
+/* Vary heights to emphasize masonry effect */
+.tpl-calm .photo-card:nth-child(3n+1) .photo-card__image {
+  aspect-ratio: 4 / 5;
+}
+
+.tpl-calm .photo-card:nth-child(3n+2) .photo-card__image {
+  aspect-ratio: 3 / 2;
+}
+
+@media (max-width: 1024px) {
+  .tpl-calm .gallery__grid {
+    column-count: 2;
+  }
+}
+
+@media (max-width: 640px) {
+  .tpl-calm .gallery__grid {
+    column-count: 1;
+  }
+}
+
+
+/* ═══════════════════════════════════════════
+   NOSTALGIA — single column, white border, ±1.5° rotation
+   Tokens: bg #EFE3CF, ink #3A2E24, line #CBB89B, accent #C98B5A
+   ═══════════════════════════════════════════ */
+#gallery-section.tpl-nostalgia {
+  --bg:     #EFE3CF;
+  --ink:    #3A2E24;
+  --ink-soft: #5C4A3A;
+  --line:   #CBB89B;
+  --accent: #C98B5A;
+  /* why: default accent-strong (#B8466A) is only 4.02:1 on this bg; darkened to pass AA */
+  --accent-strong: #A63D5F;
+  --surface: #F5ECDC;
+  --shadow-card: 0 4px 20px rgba(58, 46, 36, 0.12);
+  background-color: var(--bg);
+  color: var(--ink);
+}
+
+.tpl-nostalgia .gallery__grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-6);
+}
+
+.tpl-nostalgia .photo-card {
+  max-width: 520px;
+  width: 100%;
+  /* why: white border around photos mimics an old printed snapshot */
+  border: 6px solid #FFFFFF;
+  box-shadow: 0 4px 20px rgba(58, 46, 36, 0.12);
+  border-radius: 2px; /* old photos have sharper corners */
+}
+
+/* why: alternate rotation for a scattered-on-a-table feel */
+.tpl-nostalgia .photo-card:nth-child(odd) {
+  transform: rotate(1.5deg);
+}
+
+.tpl-nostalgia .photo-card:nth-child(even) {
+  transform: rotate(-1.5deg);
+}
+
+.tpl-nostalgia .photo-card__image {
+  aspect-ratio: 4 / 3;
+}
+
+
+/* ═══════════════════════════════════════════
+   CELEBRATION — 2-col grid, first photo as wide hero
+   Tokens: bg #FFF4E0, ink #2A1A12, line #E8CFA0, accent #D9472B (gold secondary #F2A33A)
+   ═══════════════════════════════════════════ */
+#gallery-section.tpl-celebration {
+  --bg:     #FFF4E0;
+  --ink:    #2A1A12;
+  --ink-soft: #5C4A3A;
+  --line:   #E8CFA0;
+  --accent: #D9472B;
+  --accent-strong: #B73320;
+  --accent-gold: #F2A33A; /* secondary accent per DESIGN.md */
+  --surface: #FFF9EE;
+  --shadow-card: 0 4px 20px rgba(42, 26, 18, 0.08);
+  background-color: var(--bg);
+  color: var(--ink);
+}
+
+.tpl-celebration .gallery__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+}
+
+/* why: first photo spans both columns as a hero image */
+.tpl-celebration .photo-card:first-child {
+  grid-column: 1 / -1;
+}
+
+.tpl-celebration .photo-card:first-child .photo-card__image {
+  aspect-ratio: 21 / 9;
+}
+
+/* why: thin accent divider between cards per DESIGN.md spec */
+.tpl-celebration .photo-card {
+  border-top: 2px solid var(--accent);
+}
+
+.tpl-celebration .photo-card:first-child {
+  border-top: none;
+}
+
+.tpl-celebration .photo-card__emotion {
+  /* use the gold secondary for pills in celebration mode */
+  background: var(--accent-gold);
+}
+
+@media (max-width: 640px) {
+  .tpl-celebration .gallery__grid {
+    grid-template-columns: 1fr;
+  }
+}

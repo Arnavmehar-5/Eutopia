@@ -119,6 +119,7 @@
   if (captionSearchForm) {
     captionSearchForm.addEventListener('submit', function (event) {
       event.preventDefault();
+      
       filterPhotosByCaption();
       var firstMatch = galleryGrid && galleryGrid.querySelector('.photo-card:not([hidden])');
       if (firstMatch) {

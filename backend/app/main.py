@@ -9,6 +9,7 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 
 from .gemma import InvalidModelOutput, UpstreamFailure, analyze_image
@@ -80,6 +81,12 @@ async def analyze(file: UploadFile = File(...)):
     except UpstreamFailure as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from None
     return {"ok": True, "result": result, "model": model}
+
+
+# Serve the frontend from the same address as the API, so Render needs no CORS setup.
+# Mounted last so the /analyze route above is matched first.
+FRONTEND_DIR = Path(__file__).resolve().parents[2] / "frontend"
+app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
 
 
 if __name__ == "__main__":

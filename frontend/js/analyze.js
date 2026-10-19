@@ -4,7 +4,7 @@
   var uploadButton = document.getElementById('upload-btn');
   if (!uploadButton) return;
 
-  var API_URL = 'http://127.0.0.1:8000/analyze';
+  var API_URL = '/analyze';
   var MAX_IMAGE_BYTES = 2 * 1024 * 1024;
   // why: 115 s lets the backend finish its bounded upload, generation, and one repair attempt.
   var FETCH_TIMEOUT_MS = 115000;

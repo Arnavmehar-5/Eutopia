@@ -2,96 +2,110 @@
 
 *A good place where people and nature are at peace.*
 
-Eutopia is a calm photo gallery for the memories you never want to delete. You upload a photo, and Gemma 4 reads it through the Gemini API and writes a short caption, keywords, an event type, an emotion, a few mood words and a suggested title. The gallery shows each photo with its caption and emotion, and you can switch between three looks and search by caption.
+Eutopia is a calm photo gallery for the memories you never want to delete. You upload a photo, and Gemma 4 (through the Gemini API) writes a short caption, keywords, an event type, an emotion, a few mood words, and a suggested title. The gallery shows each photo with its caption and emotion. You can switch between three groups and search photos by caption.
 
-This is a working prototype built during sudo Hacktober 2026. It is not a finished product. See the note at the end for what it can and cannot do today.
+**Live demo:** https://eutopia-1.onrender.com/
 
-## The problem
+This is a working prototype built during sudo Hacktober 2026. It is not a finished product.
 
-Photos from a festival, a graduation or a trip sit in a phone's camera roll, sorted by date. Gallery apps group them by time and place, not by what they mean. People keep these photos for years and rarely delete them, so the collection grows and becomes hard to browse.
+## Purpose
 
-## What Eutopia does
+Photos from a festival, a graduation, or a trip sit in a phone's camera roll, sorted by date. Gallery apps group them by time and place, not by what they mean. Eutopia tries a different approach: an AI model describes each photo, and the gallery groups and searches photos by that description.
 
-You open the page in your browser and click **Upload photos**. You can choose a JPEG, PNG or WebP file up to 2 MB. The browser checks the size and sends the file to a small local backend.
+## How it works
 
-The backend checks that the file really is the type it claims to be, by reading its first bytes. It then uploads the image to the Gemini Files API, asks Gemma 4 for a JSON answer with six fields, and checks every field against fixed rules. Captions must be 4 to 18 words. Keywords must be 3 to 6 unique lowercase words. The event must be one of diwali, graduation, college, trip, family or other. The emotion must be one of joy, calm, nostalgia, pride, excitement or love. The backend deletes its temporary upload when it finishes.
+1. You open the page and choose a photo.
+2. The browser sends the photo to the backend at `/analyze`.
+3. The backend checks that the file is a real JPEG, PNG, or WebP by reading its first bytes.
+4. The backend uploads the image to the Gemini Files API and asks Gemma 4 for a JSON answer with six fields: caption, keywords, event, emotion, mood words, and suggested title.
+5. The backend checks every field against fixed rules. Captions must be 4 to 18 words. Keywords must be 3 to 6 unique lowercase words. Invalid output is retried once, then rejected.
+6. The backend deletes its temporary upload and returns the result. The page shows the photo with its caption and emotion.
 
-The page then shows a card with the photo, its caption, its emotion tag and "Analysis complete". If analysis fails, the card still shows the photo and a plain reason, such as a timeout or a rejected file. It never shows a made-up caption.
+If analysis fails, the photo still appears with a plain reason, such as a timeout. Eutopia never shows a made-up caption for a failed analysis.
 
-You can switch the gallery between three groups, **Wallpaper**, **Nature** and **College memories**. Each group shows only its own cards, and new uploads go into the group you have selected. Below the gallery heading there is a search field labelled "Looking for a photo?". As you type, it filters the cards by caption text. Pressing **Find photo** moves to the first match.
+**Gallery and search.** The page has three groups: Wallpaper, Nature, and College memories. New uploads go into the group you have selected. The search box filters photos by caption text as you type.
 
-When the system asks for reduced motion, the falling petals and the reveal animations are turned off.
+**Example cards.** The Nature and College memories groups include example cards with hand-written captions. They are labelled "Example caption" in the interface and are not model output.
 
-## What it is capable of today
+**Reduced motion.** If your system asks for reduced motion, the falling petals and reveal animations are turned off.
 
-Eutopia can take a real photo, send it to Gemma 4, and show a validated result with a clear error when something fails. The model call uses timeouts, one retry for malformed output, and a retry for temporary server errors. The browser and backend both enforce the same limits, so bad output is rejected rather than shown.
+## Architecture
 
-It can filter a gallery by three groups and by caption text, and it keeps the photo visible even when analysis fails.
+The app has two parts served from one address:
 
-## How it is built
+- **Frontend:** plain HTML, CSS, and JavaScript in `frontend/`. No framework and no build step.
+- **Backend:** Python 3 with FastAPI in `backend/app/`. It serves the frontend files and the `/analyze` endpoint.
 
-The frontend is plain HTML, CSS and JavaScript with no framework and no build step. It is served on port 8080. The backend is Python 3 with FastAPI, served on port 8000 by uvicorn. It uses the official google-genai SDK, python-dotenv for configuration, and python-multipart for uploads. Dependencies are pinned in `backend/requirements.txt`.
-
-The architecture is three parts. The browser sends a multipart request to `POST /analyze` on the backend. The backend calls Gemma through the Gemini API and returns JSON. The Gemini API is the only external service.
+The Gemini API is the only external service.
 
 ## Running it locally
 
-You need Python 3.12, a Gemini API key from Google AI Studio, and Git. Clone the repository, create a virtual environment, and install the requirements from `backend/requirements.txt`. Copy `.env.example` to `.env` and fill in `GEMINI_API_KEY`, `GEMMA_MODEL` and `PORT`. The key stays on the server and is never sent to the browser.
+You need Python 3.12, a Gemini API key from Google AI Studio, and Git.
 
-Start the backend with `python -m backend.app.main` from the project root. Start the frontend by running `python -m http.server 8080` inside the `frontend` folder. Then open `http://localhost:8080`. Use `localhost`, not `127.0.0.1`, in the browser. The backend accepts requests only from `localhost:8080` and `127.0.0.1:8080`.
+1. Clone the repository and open the project folder:
+```bash
+   git clone https://github.com/Arnavmehar-5/Eutopia.git
+   cd Eutopia
+```
+2. Create and activate a virtual environment:
+```bash
+   python -m venv backend/.venv
+   # Windows PowerShell
+   backend\.venv\Scripts\Activate.ps1
+   # macOS / Linux
+   source backend/.venv/bin/activate
+```
+3. Install the dependencies:
+```bash
+   pip install -r backend/requirements.txt
+```
+4. Copy `.env.example` to `.env` and fill in your values:
+```
+   GEMINI_API_KEY=your_key_here
+   GEMMA_MODEL=gemma-4-26b-a4b-it
+   PORT=8000
+```
+   The key stays on the server and is never sent to the browser. Never commit `.env`.
+5. Start the app from the project root:
+```bash
+   python -m uvicorn backend.app.main:app --port 8000
+```
+6. Open http://localhost:8000 in your browser.
 
-The optional script `backend/scripts/check_model.py` makes one direct call to Gemma and prints whether it worked, without starting the server.
+The optional script `backend/scripts/check_model.py` makes one direct call to Gemma and prints whether the connection works, without starting the server.
+
+## Deploying on Render
+
+1. Create a new **Web Service** from this GitHub repository.
+2. Use these settings:
+   - **Build command:** `pip install -r backend/requirements.txt`
+   - **Start command:** `uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT`
+3. Add the environment variables `GEMINI_API_KEY` (mark it as secret) and `GEMMA_MODEL`. Do not set `PORT`, because Render provides it.
+
+The free tier sleeps after a period without traffic. The first request after that can take up to a minute.
 
 ## Privacy
 
 Photos are sent to Google's Gemini API for analysis, so do not upload private images you do not want analysed. The backend stores nothing. It uploads each photo to the Gemini Files API, requests the analysis, and deletes the upload afterwards. Google documents automatic deletion after 48 hours if an explicit delete fails.
 
-The browser keeps nothing between visits. Photos appear only while the page is open, and refreshing the page clears them. The code does not use IndexedDB, localStorage or any other persistent storage. Eutopia is a way to browse memories, not a backup. Keep your original photos.
+**Refreshing the page clears everything.** Eutopia does not save photos or results. The browser keeps nothing between visits, and the code uses no IndexedDB, localStorage, or other persistent storage. Photos and captions appear only while the page is open. Eutopia is a way to browse memories, not a backup, so keep your original photos.
+
+## Limitations
+
+- Photos and results are not saved. Refreshing the page or closing it removes them.
+- Search checks captions only, not keywords, events, or group names.
+- Gemma's output has been checked on a small number of photos, not a full evaluation set.
+- The project has no automated tests. Features were checked by hand.
+- The free hosting tier sleeps when idle, so the first request can be slow.
 
 ## Status
 
-The Gemma call returned complete, valid results in the runs recorded in the project's progress notes. Those runs were manual, and the repeatability check across several real photos has not been completed. The repository has no automated tests.
+Eutopia is a working demonstration. It can accept a photo, send it to Gemma 4, show a validated caption and emotion with honest error states, group the gallery into three groups, and search captions. Saving photos between visits, search over keywords, sections, and voice control are not built yet.
 
-Upload checks, caption search, template switching and reduced-motion handling have been checked by hand in the browser, according to the progress notes, but not by automated tests. Saving photos between visits, browser resizing, album sections, search over keywords, place recognition, voice control and hosting are not built.
+## Credits
 
-## Credits and assets
-
-The four images in `frontend/assets/` are the Windows default wallpaper, which is used for the Wallpaper group, and three photos supplied by the owner for the Nature and College memories groups. Their sources and licences are not recorded in the repository. Add them before publishing.
-
-No fonts are loaded from the network. The petal animation and all other code are the project's own.
-
-## Evaluation
-
-No evaluation has been completed. The planned check is five different real photos with the owner judging caption accuracy. The repository contains no results for it.
+The sample images are the project owner's photos and Windows wallpapers. Sources and licences for the images are to be added before publishing.
 
 ## License
 
-Eutopia is licensed under the Apache License 2.0. See the LICENSE file.
-
----
-
-## Note: drawbacks and what it can be right now
-
-**Drawbacks**
-
-The Nature and College memories cards show hand-written example captions, not model output. They appear in the live gallery labelled "Example caption", which is not clearly marked as demo data. This conflicts with the rule of never showing invented captions, so either hide them behind `?demo=1` with a visible label or remove them before you present. The Wallpaper card's caption is a real earlier model result, but it is also fixed text and should follow the same rule.
-
-Photos over 2 MB are rejected, and the browser does not resize them. Most phone photos are larger than 2 MB, so a normal camera photo will often fail. Resizing to about 1280 pixels as WebP is the single most useful fix.
-
-Nothing persists. Refreshing the page clears every photo and result. Saving to IndexedDB is the next step, and it is needed before the app can be called a memory store.
-
-The backend address is fixed at `127.0.0.1:8000` in the frontend code. Changing `PORT` in `.env` breaks the frontend unless you change `API_URL` too. The app runs on one machine, and hosting it needs the frontend served from the same address as the backend.
-
-Search only checks captions. It does not look at keywords, events or group names, so a word that appears only in the keywords will not find a photo.
-
-Gemma's output has not been checked for consistency across several real photos, so one good caption does not prove the next one will be as good. The repository has no automated tests, so every feature has been checked by hand only.
-
-Two documents disagree with the current state. `progress.md` still says git is unavailable in this copy, but the repository has a `.git` folder and a commit history. Some earlier notes also describe a backend connection that later worked. Update `progress.md` before submission so the judges see one accurate account.
-
-The project zip you shared earlier contained a `.env` file with a live key. Check that the key has been rotated, and make sure `.env` is not in any upload or repository history.
-
-**What it can be right now**
-
-Right now Eutopia is a working demonstration. It can accept a photo, send it to Gemma 4, show a validated caption and emotion with honest error states, group the gallery into three looks, and search captions. It is good enough to show the core idea: a camera roll grouped by what the photos mean, with an AI model doing the describing. It is not yet a tool someone can use every day, because it forgets everything on refresh and rejects most phone photos.
-
-For the demo, show one live upload and then the gallery with its three looks and caption search, and say plainly what is not built. Keep the example cards behind a clear label, or leave them out.
+Eutopia is licensed under the Apache License 2.0. See [LICENSE](LICENSE).
